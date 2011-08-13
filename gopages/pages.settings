@@ -1,0 +1,7 @@
+extensions { ghtml }
+
+handle { ALL }
+
+srcfolder { src }
+
+default { index }
