@@ -13,6 +13,7 @@ import (
 	"strings"
 	"flag"
 	"path"
+	"fmt"
 )
 
 const (
@@ -29,17 +30,22 @@ func main() {
 	run := flag.Bool("run", false, "run the generated executable (only works with gobuild)")
 	flag.Parse()
 	if *cl {
+		fmt.Println("ssIN_ IF")
 		err := clean()
 		if err != nil {
 			println(err.String())
 		}
 		return
 	}
+	fmt.Println("Live in Japan")
 	settings, err := util.LoadSettings() //inits the settings and generates the .go source files
+	fmt.Println("WoW WoW WoW")
 	if err != nil {
 		println(err.String())
+		fmt.Println("ss222")
 		return
 	}
+	fmt.Println("ss111")
 	util.Config = settings.Data //stores settings to accessible variable
 	println("generated", len(settings.Data["pages"]), "gopages")
 	err = util.AddHandlers(settings.Data["handle"]) //add all handlers

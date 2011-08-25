@@ -1,0 +1,164 @@
+// Copyright 2010 Abiola Ibrahim <abiola89@gmail.com>. All rights reserved.
+// Use of this source code is governed by New BSD License
+// http://www.opensource.org/licenses/bsd-license.php
+// The content and logo is governed by Creative Commons Attribution 3.0
+// The mascott is a property of Go governed by Creative Commons Attribution 3.0
+// http://creativecommons.org/licenses/by/3.0/
+
+gopages - http://code.google.com/p/gopages
+======
+
+A simple web framework with the objective of making web development in go easier
+With gopages you create web pages and embed codes in <?go ?> tags.
+It automatically adds http handlers for all pages with the 
+extensions you specify in the settings file and serves all files
+in the source folder with the exception of the source codes.
+gopages is compiled before execution.
+
+
+REQUIREMENTS
+============
+To use gopages, gobuild (http://code.google.com/p/gobuild) is required
+
+-gobuild executable must be copied to your $GOBIN for gopages to access it
+-build gopages using gobuild (or download the binary)
+-copy gopages to your $GOBIN or add it to your $PATH or anywhere accessible
+
+It is easy to use.
+
+a simple hello world example
+
+create a folder 'src' and create an index.ghtml file in it
+with the contents
+
+ <html> 
+ 	<body> 
+ 	<?go print("<h1>Hello World</h1>") ?> 
+ 	</body> 
+ </html> 
+ 
+then create a pages.settings file in the root folder (parent to src) with the contents
+
+ extensions{ ghtml }
+ 
+ handle { ALL }
+
+ srcfolder { src }
+
+ default { index }
+ 
+then create a hello.go in the root folder with the content
+
+ package main
+ 
+ import "pages" //generated package
+ 
+ func main(){
+    pages.Run(":9999") //start server on localhost:9999
+ }
+
+open terminal, navigate to project root and run gopages
+then run ./hello
+
+finally, point your browser to localhost:9999
+
+
+HOW IT WORKS
+============
+gopages generates go source codes to a "pages" directory in your package root folder.
+The filenames of go source codes generated follow the rules
+	removes all '.' e.g. hello.ghtml will be helloghtml.go
+	names the file from the package root folder and removes all '/' e.g. src/hello.ghtml will now be srchelloghtml.go
+
+	inside each generated source file there is an handler function
+		func Rendersourcecodename(conn *http.Conn, request *http.Request)
+		e.g. hello.ghtml will generate func Rendersrchellohtml(conn *http.Conn, request *http.Request)
+
+	in case you want to add an handler manually though you mostly won't need to  
+	you should add the handler before calling pages.Run like the example below
+
+	package main
+	
+	import "pages"
+
+	func main(){
+		http.Handle("/manual", http.HandlerFunc(pages.Rendersrchelloghtml));
+		pages.Run(":9999")
+	}
+		
+GETTING STARTED
+===============
+firstly, u must create a pages.settings File in your package root with the following rules
+
+extensions { ghtml }
+
+handle { ALL }
+
+srcfolder { src }
+
+default { index }
+
+extensions - contains file extensions of html pages you created the gopages way in the srcfolder
+	you can choose any extension. I used ghtml cos it sounds goish.
+	and you can have more than one e.g. extensions { ghtml do gsp }
+
+handle - contains pages to automatically add handlers for and there are keywords ALL and EXCEPT
+	ALL - will handle all pages in src folder with the extensions you specify
+	EXCEPT - will handle all but the pages that follow e.g. handle { EXCEPT hello.ghtml echo.ghtml }
+	- you can also list the pages to handle e.g. handle { hello.ghtml hello.html }
+	I added this cos there may be need to manually handle some pages
+
+srcfolder - folder where the source files are located (just one value)
+
+default - the page to load by default (one value) e.g. the Hello World example loads index by default
+
+Only the braces matters, you can separate with any whitespace character
+
+You may be wondering why I didn't use common standards like XML, I just thought
+this is easy enough to write. But as the project grows, there may need for XML.
+
+
+Then create your webpages with the rules
+	Design your webpages normally and embed your codes in <?go ?> tags just like php
+	if you need to import any package, your webpage must begin with "{{ libraries to import }}" without quotes
+		e.g. {{ strconv io ioutil }} <html> <head> ...
+		you can separate them with any whitespace character(s)
+	there are some built-in variables and functions to use: 
+		conn *http.Conn, request *http.Request, formValue(key string), print(text ...interface{})
+		- formValue(key string) to retrieve value from GET or POST requests
+		- print(text ...interface) to print any data type
+		- to do other things, read the godoc for http.Conn and http.Request
+
+All your pages and anything you want gopages to handle must be in the srcfolder 
+you specify in the settings file, you may add other handlers manually if you need 
+to access other locations
+
+the srcfolder and pages folder (where generated codes are stored) are not accessible 
+through http requests which is in most cases the web browser.
+
+To access your pages from web browser, use the path without the file extension.
+Just like the hello world example above, the address to locate the index.ghtml file is localhost:9999/index
+NOTE:
+having index.ghtml and index.do in same folder where gopages is handling both ghtml and do
+will lead to having only one, with one overwriting the other, the one generated last.
+
+Finally, in your main.main func you must call pages.Run for all handlers to be added.
+navigate to your package root, run gopages and execute the resulting executable
+or run "gopages -run" without quotes to run the executable after successful build
+
+EXAMPLES
+========
+to run the examples, extract the examples and navigate to the folder 
+open terminal and run gopages 
+run ./main
+and finally navigate your browser to http://localhost:9999
+
+Enjoy
+
+
+To use makefile with gopages instead of gobuild (if you'd prefer)
+run gopages -make "flags" e.g. gopages -make "install"
+gopages assume make is located in '/usr/bin/make'
+
+COMMENTS and TIPS are welcome in my inbox and blog(abiola89.blogspot.com). Anyone interested in the 
+project can mail me too.

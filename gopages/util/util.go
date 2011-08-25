@@ -13,6 +13,7 @@ import (
 	"strings"
 	"io/ioutil"
 	"path"
+	"fmt"
 )
 //StringBuilder type like StringBuilder in java
 type StringBuilder struct {
@@ -158,6 +159,7 @@ type Settings struct {
 func LoadSettings() (s *Settings, err os.Error) {
 	s = new(Settings)
 	err = s.parse()
+fmt.Println("ss*****************************")
 	return
 }
 //parse the informations in the settings file
@@ -182,7 +184,10 @@ func (this *Settings) parse() (err os.Error) {
 			return
 		}
 	}
+	fmt.Println("Before me")
 	err = this.GeneratePages()
+fmt.Println("my")
+
 	if err != nil {
 		return
 	}
@@ -208,7 +213,9 @@ func (this *Settings) GeneratePages() (err os.Error) {
 		return
 	}
 	pages := new(vector.StringVector)
+	fmt.Println("Before me7")
 	err = this.iterFiles(this.Data["srcfolder"][0], pages)
+	fmt.Println("Before me1")
 	this.Data["pages"] = []string(*pages)
 	return
 }
@@ -226,6 +233,7 @@ func (this *Settings) iterFiles(f string, pages *vector.StringVector) (err os.Er
 		return
 	}
 	if stat.IsDirectory() {
+		fmt.Println("iterFiles55555")
 		dirs, err := file.Readdir(-1)
 		if err != nil {
 			return
@@ -236,6 +244,7 @@ func (this *Settings) iterFiles(f string, pages *vector.StringVector) (err os.Er
 	} else {
 		if hasExt(file.Name(), this.Data["extensions"]) {
 			err = generate(file.Name())
+			fmt.Println("iterFiles_eekkkk")
 			if err != nil {
 				return
 			}
@@ -259,9 +268,12 @@ func hasExt(filename string, ext []string) bool {
 //direct function to generate .go source file
 func generate(page string) (err os.Error) {
 	p, err := NewPage(page)
+	fmt.Println(p)
+	fmt.Println(err)
 	if err != nil {
 		return
 	}
 	err = p.ParseToFile()
+	fmt.Println("genterate_3")
 	return
 }
